@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BATTERY CHECKER</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #a8edea, #fed6e3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        #battery {
+            background-color: blanchedalmond;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            border-radius: 15px;
+            transition: transform 0.3s ease;
+        }
+
+        #battery:hover {
+            transform: scale(1.02);
+        }
+
+        #details {
+            background-color: #007a8c;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            padding: 25px 20px;
+            margin-top: 25px;
+            border-radius: 15px;
+            color: white;
+            text-align: center;
+        }
+
+        h2 {
+            margin: 0;
+            font-size: 2rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+        }
+
+        p {
+            font-size: 1.1rem;
+            margin: 15px 0;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 10px;
+            box-shadow: inset 0 0 6px rgba(255, 255, 255, 0.25);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="battery">
+        <h2> BATTERY CHECKER</h2>
+        <div id="details">
+            <p id="batteryLevel">Battery Level:</p>
+            <p id="charging">charging:</p>
+            <p id="time">Time Remaining: </p>
+        </div>
+    </div>
+    <script>
+        navigator.getBattery().then(function (battery) {
+            // navigator.getbattery is a function of browser
+            //  JavaScript ke zariye browser se interact karne ke liye use hota hai.
+            // jo Battery Status API ka part hai.
+
+            //Jab tum navigator.getBattery() call karte ho, 
+            // to browser ek BatteryManager object deta hai. Is object mein battery ki saari important info hoti hai.
+
+            // ye ek promise return krta hai jisse hum  battery object mai catch krte hai 
+            // battery ek object hai jisme sab battery-related info hoti hai.
+
+            // battery object jo humne response mai mila hai uske ander ye hota hai:(battery object ka structure)
+            //             {
+            //   level: 0.75,
+            //   charging: true,
+            //   chargingTime: 1200,
+            //   dischargingTime: 3000,
+            //   ...
+            // }
+
+
+            function batteryUpdate() {
+                document.getElementById('batteryLevel').textContent = "Battery-Level  :  " + Math.round(battery.level * 100) + "%";
+                //math.round ka mtlb hai round off value of battery .level jo ki 0 or 1 mai h ans deta hai
+                //example:Math.round(72.8) → 73
+                document.getElementById('charging').textContent = "Charging  :  " + (battery.charging ? "yes" : "No");
+
+                if (battery.charging) {
+                    document.getElementById("time").textContent = "Time left for full charge:" +
+                        (battery.chargingTime === Infinity ? "Calculating..." : Math.round(battery.chargingTime / 60) + " minutes")
+                }
+                //In JavaScript, Infinity ek special value hoti hai jo tab hoti hai jab:
+                // Koi value bahut zyada ho (limitless)
+                // Ya calculate nahi ki ja sakti
+                // chargingTime === Infinity	Charging nahi ho rahi ya browser time estimate nahi kar pa raha
+                // dischargingTime === Infinity	Charging on hai, isliye battery discharge nahi ho rahi
+                else {
+                    document.getElementById("time").textContent = 'Time remaining :  ' +
+                        (battery.dischargeTime === Infinity ? "Calculating..." : Math.round(battery.dischargingTime / 60) + " minutes");
+                }
+            }
+            batteryUpdate()
+
+            //Bas tum browser mein navigator.getBattery() call karo, 
+            // aur jo battery object mile, us par ye events use kar sakte ho.
+            //ye sare inbulid events hai just hme call karne hai or function lgana hai
+            battery.addEventListener("levelchange", batteryUpdate);
+            battery.addEventListener("chargingchange", batteryUpdate);
+            battery.addEventListener("chargingtimechange", batteryUpdate);
+            battery.addEventListener("dischargingtimechange", batteryUpdate);
+        });
+    </script>
+</body>
+
+</html>
